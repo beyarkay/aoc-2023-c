@@ -17,6 +17,11 @@ run%: $(SRC_DIR)/%.c | $(BIN_DIR)
 	$(CC) $< -o $(BIN_DIR)/$@
 	./$(BIN_DIR)/$@
 
+# Build and run each target
+bench%: $(SRC_DIR)/%.c | $(BIN_DIR)
+	$(CC) $< -o $(BIN_DIR)/$@
+	hyperfine --warmup=5 -N --min-runs=100 ./$(BIN_DIR)/$@
+
 # Ensure the bin directory exists
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
