@@ -46,58 +46,69 @@
 // Consider your entire calibration document. What is the sum of all of the
 // calibration values?
 //
-// Benchmark 1: make run01
-//   Time (mean ± σ):      50.4 ms ±   2.8 ms    [User: 33.3 ms, System: 12.2
-//   ms] Range (min … max):    49.1 ms …  70.4 ms    56 runs
+// Benchmark 1: ./bin/bench01
+//   Time (mean ± σ):   659.6 µs ±  44.9 µs [User: 257.5 µs, System: 206.7 µs]
+//   Range (min … max): 606.0 µs … 1224.6 µs    3794 runs
+//
+//   Warning: Statistical outliers were detected. Consider re-running this
+//   benchmark on a quiet system without any interferences from other programs.
+//   It might help to use the '--warmup' or '--prepare' options.
 
 #include <stdio.h>
 #include <stdlib.h>
 
 int main() {
-  // printf("Starting\n");
+  // Setup
   FILE *file;
   char *line = NULL;
-  size_t len = 0;
+  size_t length = 0;
   ssize_t n_chars_read;
 
+  // Get file handle
   file = fopen("input/01.txt", "r");
 
+  // Check for errors fetching file handle
   if (file == NULL) {
     perror("Error opening file");
     return 1;
   }
 
-  int line_num = 0;
-  char left = '\0';
-  char right = '\0';
+  // Store the leftmost and rightmost digit as a char initially
+  char left;
+  char right;
 
+  // Keep track of the count
   int count = 0;
-  while ((n_chars_read = getline(&line, &len, file)) != -1) {
+  while ((n_chars_read = getline(&line, &length, file)) != -1) {
+    // Reinitiliase left and right for each line in the file
     left = '\0';
     right = '\0';
-    // printf("\n:: %zd %zu\n:: %s", n_chars_read, len, line);
+    // Go over every character in the line
     for (int i = 0; i < n_chars_read - 1; i++) {
-      // printf("\nleft: %c right: %c", line[i], line[n_chars_read - 2 - i]);
+      // Check if the character is a digit and if we haven't yet found a
+      // left/right character
       if (left == '\0' && line[i] >= '0' && line[i] <= '9') {
-        // printf("\n  [%d  %d] %c\n", line_num, i, line[i]);
         left = line[i];
       }
       if (right == '\0' && line[n_chars_read - 2 - i] >= '0' &&
           line[n_chars_read - 2 - i] <= '9') {
         right = line[n_chars_read - 2 - i];
       }
+      // If we've found both a left and rightmost character, we're done with
+      // this line
       if (right != '\0' && left != '\0') {
         break;
       }
     }
-    // printf("\n%c%c", left, right);
+    // Add to the count the two-digit number consisting of left as the tens
+    // digit and right as the units digit
     count += (left - '0') * 10 + (right - '0');
   }
+  // print out the result
   printf("\n%d", count);
 
+  // Close out the program
   free(line);
-
   fclose(file);
-
   return 0;
 }
